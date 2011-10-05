@@ -85,9 +85,9 @@ class State
       when '^' then @delta = x: 0, y:-1
       when '>' then @delta = x: 1, y: 0
       when '?' then @random_op()
-      # Skip next command
+      # Skip next instruction
       when '#' then @move_pc()
-      # Enter read char mode
+      # Toggle stringmode
       when '"' then @stringmode = not @stringmode
       # I/O
       when ',' then @output_char @pop()
