@@ -5,6 +5,7 @@
 #
 # Author: Håkan Nilsson
 #
+sys = require 'sys'
 
 DEBUG    = true
 OUTPUT   = 'console'
@@ -14,8 +15,9 @@ HEIGHT   = 25
 run = (code) ->
   log 'Running program'
   state = new State(code)
-  while state.running == true
-    state.print()
+  while state.running
+    if DEBUG
+      state.print()
     state.tick()
   log 'Finished running program'
 
@@ -108,7 +110,10 @@ class State
     if line != '   '
       print_line line
 
-  output_char: (c) -> @output += String.fromCharCode(c)
+  output_char: (c) ->
+    if not DEBUG
+      print String.fromCharCode(c)
+    @output += String.fromCharCode(c)
 
   move_pc: ->
     @pc.x += @delta.x
@@ -120,18 +125,21 @@ print_dashes = () ->
   line = '+'
   for c in [0..WIDTH]
     line += '-'
-  print line + '+'
+  puts line + '+'
 
 print_line = (line) ->
   while line.length <= WIDTH
     line += ' '
-  print "|#{line}|"
+  puts "|#{line}|"
 
 print = (s) ->
-  if OUTPUT == 'console' then console.log s
+  if OUTPUT == 'console' then sys.print s
+
+puts = (s) ->
+  if OUTPUT == 'console' then sys.puts s
 
 log = (s) ->
-  if DEBUG then console.log 'LOG: ' + s
+  if DEBUG then sys.puts 'LOG: ' + s
 
 hello_prog = '''
 <              v
