@@ -1,5 +1,7 @@
 (function() {
-  var DEBUG, HEIGHT, OUTPUT, State, WIDTH, hello_prog, log, print, print_dashes, print_line, run, test;
+  var DEBUG, HEIGHT, OUTPUT, State, WIDTH, hello_prog, log, print, print_dashes, print_line, puts, run, sys, test;
+
+  sys = require('sys');
 
   DEBUG = true;
 
@@ -13,8 +15,8 @@
     var state;
     log('Running program');
     state = new State(code);
-    while (state.running === true) {
-      state.print();
+    while (state.running) {
+      if (DEBUG) state.print();
       state.tick();
     }
     return log('Finished running program');
@@ -178,6 +180,7 @@
     };
 
     State.prototype.output_char = function(c) {
+      if (!DEBUG) print(String.fromCharCode(c));
       return this.output += String.fromCharCode(c);
     };
 
@@ -198,22 +201,26 @@
     for (c = 0; 0 <= WIDTH ? c <= WIDTH : c >= WIDTH; 0 <= WIDTH ? c++ : c--) {
       line += '-';
     }
-    return print(line + '+');
+    return puts(line + '+');
   };
 
   print_line = function(line) {
     while (line.length <= WIDTH) {
       line += ' ';
     }
-    return print("|" + line + "|");
+    return puts("|" + line + "|");
   };
 
   print = function(s) {
-    if (OUTPUT === 'console') return console.log(s);
+    if (OUTPUT === 'console') return sys.print(s);
+  };
+
+  puts = function(s) {
+    if (OUTPUT === 'console') return sys.puts(s);
   };
 
   log = function(s) {
-    if (DEBUG) return console.log('LOG: ' + s);
+    if (DEBUG) return sys.puts('LOG: ' + s);
   };
 
   hello_prog = '<              v\nv  ,,,,,"Hello"<\n>48*,          v\nv,,,,,,"World!"<\n>25*,@';
