@@ -81,26 +81,48 @@ class State
       when 'v' then @delta = x: 0, y: 1
       when '^' then @delta = x: 0, y:-1
       when '>' then @delta = x: 1, y: 0
+      when '?' then @random_op()
+      # Skip next command
+      when '#' then @move_pc()
       # Enter read char mode
       when '"' then @read_chars = not @read_chars
       # I/O
       when ',' then @output_char @pop()
-      when ' ' then # Noop, Chuck Testa!
+      when '.' then @output_int @pop()
       # Arithmetic operators
       when '*' then @push(@pop() * @pop())
       when '+' then @push(@pop() + @pop())
       when '-' then @minus_op()
       when '/' then @div_op()
+      when '%' then @mod_op()
       # Logical operators
-      when '!' then @push(not @pop)
+      when '!' then @push (not @pop)
       # Stack operators
       when '$' then @pop()
+      when ':' then @duplicate_op()
+      when '\\' then @swap_op()
+      # Get
+      when 'g' then @get_op()
+      # Noop, Chuck Testa!
+      when ' ' then
       # Quit
       when '@' then @running = false
       else
         log "Syntax error! Unknown instruction: '#{instruction}' at " +
             "(x: #{@pc.x}, y: #{@pc.y})"
         @running = false
+
+  random_op: () ->
+    # Decide if negative or positive
+    if Math.random() < 0.5
+      sign = -1
+    else
+      sign = 1
+    # Decide if x or y
+    if Math.random() < 0.5
+      @delta = x: sign, y: 0
+    else
+      @delta = x: 0, y: sign
 
   minus_op: () ->
     a = @pop()
@@ -112,6 +134,28 @@ class State
     b = @pop()
     @push Math.floor(b / a)
 
+  mod_op: () ->
+    a = @pop()
+    b = @pop()
+    @push (b % a)
+
+  duplicate_op: () ->
+    x = @pop()
+    @push x
+    @push x
+
+  swap_op: () ->
+    a = @pop()
+    b = @pop()
+    @push a
+    @push b
+
+  get_op: () ->
+    y = @pop()
+    x = @pop()
+    @push @area[y][x]
+    if DEBUG is on
+      log "get(x: #{x}, y: #{y}) '#{@area[y][x]}'"
   push: (x) -> @stack.unshift x
 
   pop: ->
