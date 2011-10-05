@@ -7,7 +7,7 @@
 #
 sys = require 'sys'
 
-DEBUG    = true
+DEBUG    = on
 OUTPUT   = 'console'
 WIDTH    = 80
 HEIGHT   = 25
@@ -22,9 +22,9 @@ run = (code) ->
 
 class State
   constructor: (@code) ->
-    @pc    = {x: 0, y: 0}
-    @delta = {x: 1, y: 0}
-    @area  = ((' ' for x in [0..WIDTH]) for y in [0..HEIGHT])
+    @pc    = x: 0, y: 0
+    @delta = x: 1, y: 0
+    @area  = (' ' for x in [0..WIDTH] for y in [0..HEIGHT])
     @stack = []
     @read_chars = false
     @running = true
@@ -32,7 +32,7 @@ class State
     x = 0
     y = 0
     for c in @code
-      if c == '\n'
+      if c is '\n'
         x = 0
         y += 1
       else
@@ -59,17 +59,16 @@ class State
     @print_output()
     print_dashes()
 
-  get_instruction: ->
-    return @area[@pc.y][@pc.x]
+  get_instruction: -> @area[@pc.y][@pc.x]
 
   tick: ->
     ret = @execute_instruction(@get_instruction())
     @move_pc()
-    return ret
+    ret
 
   execute_instruction: (instruction) ->
     # Push characters to the stack when in read chars mode
-    if @read_chars and instruction != '"'
+    if @read_chars and instruction isnt '"'
       @push(instruction.charCodeAt(0))
       return
 
@@ -79,10 +78,10 @@ class State
       return
 
     switch instruction
-      when '<' then @delta = {x:-1, y: 0}
-      when 'v' then @delta = {x: 0, y: 1}
-      when '^' then @delta = {x: 0, y:-1}
-      when '>' then @delta = {x: 1, y: 0}
+      when '<' then @delta = x:-1, y: 0
+      when 'v' then @delta = x: 0, y: 1
+      when '^' then @delta = x: 0, y:-1
+      when '>' then @delta = x: 1, y: 0
       when '"' then @read_chars = not @read_chars
       when ',' then @output_char(@pop())
       when ' ' then # Noop
@@ -98,20 +97,18 @@ class State
   pop: -> @stack.shift()
 
   print_output: ->
-    line = '   '
+    line = ''
     for c in @output
-      if c == '\n'
-        print_line line
-        line = '   '
+      if c is '\n'
+        print_line '   ' + line
+        line = ''
       else
         line += c
 
-    if line != '   '
-      print_line line
+    if line.length isnt 0 then print_line '   ' + line
 
   output_char: (c) ->
-    if not DEBUG
-      print String.fromCharCode(c)
+    if DEBUG is off then print String.fromCharCode(c)
     @output += String.fromCharCode(c)
 
   move_pc: ->
@@ -132,10 +129,10 @@ print_line = (line) ->
   puts "|#{line}|"
 
 print = (s) ->
-  if OUTPUT == 'console' then sys.print s
+  if OUTPUT is 'console' then sys.print s
 
 puts = (s) ->
-  if OUTPUT == 'console' then sys.puts s
+  if OUTPUT is 'console' then sys.puts s
 
 log = (s) ->
   if DEBUG then sys.puts 'LOG: ' + s
