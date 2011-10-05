@@ -42,9 +42,8 @@ class State
   print: ->
     print_dashes()
     for row in @area
-      line = ""
-      for char in row
-        line += char
+      line = ''
+      line += char for char in row
       print_line line
     print_dashes()
     print_line " PC: (#{@pc.x},#{@pc.y})" +
@@ -53,8 +52,7 @@ class State
                " Instruction: (#{@get_instruction()})"
     print_line ""
     print_line " Top of stack (total size: #{@stack.length}):"
-    for item in @stack[0..5]
-      print_line "   #{item}"
+    print_line "   #{item}" for item in @stack[0..5]
     print_line " Output:"
     @print_output()
     print_dashes()
@@ -145,13 +143,11 @@ class State
 
 print_dashes = () ->
   line = '+'
-  for c in [0..WIDTH]
-    line += '-'
+  line += '-' for c in [0..WIDTH]
   puts line + '+'
 
 print_line = (line) ->
-  while line.length <= WIDTH
-    line += ' '
+  line += ' ' while line.length <= WIDTH
   puts "|#{line}|"
 
 print = (s) ->
