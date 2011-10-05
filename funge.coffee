@@ -78,21 +78,41 @@ class State
       return
 
     switch instruction
+      # PC movement
       when '<' then @delta = x:-1, y: 0
       when 'v' then @delta = x: 0, y: 1
       when '^' then @delta = x: 0, y:-1
       when '>' then @delta = x: 1, y: 0
+      # Enter read char mode
       when '"' then @read_chars = not @read_chars
-      when ',' then @output_char(@pop())
-      when ' ' then # Noop
+      # I/O
+      when ',' then @output_char @pop()
+      when ' ' then # Noop, Chuck Testa!
+      # Arithmetic operators
       when '*' then @push(@pop() * @pop())
       when '+' then @push(@pop() + @pop())
+      when '-' then @minus_op()
+      when '/' then @div_op()
+      # Logical operators
+      when '!' then @push(not @pop)
+      # Stack operators
+      when '$' then @pop()
+      # Quit
       when '@' then @running = false
       else
         log "Syntax error! Unknown instruction: '#{instruction}' at " +
             "(x: #{@pc.x}, y: #{@pc.y})"
         @running = false
 
+  minus_op: () ->
+    a = @pop()
+    b = @pop()
+    @push (b - a)
+
+  div_op: () ->
+    a = @pop()
+    b = @pop()
+    @push Math.floor(b / a)
 
   push: (x) -> @stack.unshift x
 
