@@ -182,8 +182,10 @@ class State
   move_pc: ->
     @pc.x += @delta.x
     @pc.y += @delta.y
-    if @pc.x < 0 then @pc.x = WIDTH
-    if @pc.y < 0 then @pc.y = HEIGHT
+    if      @pc.x < 0      then @pc.x = WIDTH
+    else if @pc.x > HEIGHT then @pc.x = 0
+    if      @pc.y < 0      then @pc.y = HEIGHT
+    else if @pc.y > HEIGHT then @pc.y = 0
 
 print_dashes = () ->
   line = '+'
