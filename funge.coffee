@@ -89,7 +89,8 @@ class State
       when '+' then @push(@pop() + @pop())
       when '@' then @running = false
       else
-        log "Fatal error! Unknown instruction: '#{instruction}'"
+        log "Syntax error! Unknown instruction: '#{instruction}' at " +
+            "(x: #{@pc.x}, y: #{@pc.y})"
         @running = false
 
   push: (x) -> @stack.unshift(x)
