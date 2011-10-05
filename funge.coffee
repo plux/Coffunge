@@ -93,9 +93,14 @@ class State
             "(x: #{@pc.x}, y: #{@pc.y})"
         @running = false
 
-  push: (x) -> @stack.unshift(x)
 
-  pop: -> @stack.shift()
+  push: (x) -> @stack.unshift x
+
+  pop: ->
+    if @stack.length > 0
+      @stack.shift()
+    else
+      0
 
   print_output: ->
     line = ''
