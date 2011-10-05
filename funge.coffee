@@ -16,8 +16,7 @@ run = (code) ->
   log 'Running program'
   state = new State(code)
   while state.running
-    if DEBUG
-      state.print()
+    if DEBUG then state.print()
     state.tick()
   log 'Finished running program'
 
