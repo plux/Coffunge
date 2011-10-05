@@ -22,13 +22,13 @@ run = (code) ->
 
 class State
   constructor: (@code) ->
-    @pc    = x: 0, y: 0
-    @delta = x: 1, y: 0
-    @area  = (' ' for x in [0..WIDTH] for y in [0..HEIGHT])
-    @stack = []
+    @pc         = x: 0, y: 0
+    @delta      = x: 1, y: 0
+    @area       = (' ' for x in [0..WIDTH] for y in [0..HEIGHT])
+    @stack      = []
     @read_chars = false
-    @running = true
-    @output = ''
+    @running    = true
+    @output     = ''
     x = 0
     y = 0
     for c in @code
