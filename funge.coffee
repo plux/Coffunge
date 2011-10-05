@@ -14,7 +14,7 @@ HEIGHT   = 25
 
 run = (code) ->
   log 'Running program'
-  state = new State(code)
+  state = new State code
   while state.running
     if DEBUG then state.print()
     state.tick()
@@ -69,12 +69,12 @@ class State
   execute_instruction: (instruction) ->
     # Push characters to the stack when in read chars mode
     if @read_chars and instruction isnt '"'
-      @push(instruction.charCodeAt(0))
+      @push instruction.charCodeAt 0
       return
 
     # Push numbers to the stack
     if '0' <= instruction <= '9'
-      @push(instruction)
+      @push parseInt instruction
       return
 
     switch instruction
