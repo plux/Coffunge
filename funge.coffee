@@ -29,6 +29,9 @@ class State
     @stringmode = false
     @running    = true
     @output     = ''
+    @load(@code)
+
+  load: (code) ->
     x = 0
     y = 0
     for c in @code
