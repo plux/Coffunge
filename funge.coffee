@@ -26,7 +26,7 @@ class State
     @delta      = x: 1, y: 0
     @area       = (' ' for x in [0..WIDTH] for y in [0..HEIGHT])
     @stack      = []
-    @read_chars = false
+    @stringmode = false
     @running    = true
     @output     = ''
     x = 0
@@ -48,7 +48,7 @@ class State
     print_dashes()
     print_line " PC: (#{@pc.x},#{@pc.y})" +
                " Delta: (#{@delta.x},#{@delta.y})" +
-               " Read chars: (#{@read_chars})" +
+               " Stringmode: (#{@stringmode})" +
                " Instruction: (#{@get_instruction()})"
     print_line ""
     print_line " Top of stack (total size: #{@stack.length}):"
@@ -66,7 +66,7 @@ class State
 
   execute_instruction: (instruction) ->
     # Push characters to the stack when in read chars mode
-    if @read_chars and instruction isnt '"'
+    if @stringmode and instruction isnt '"'
       @push instruction.charCodeAt 0
       return
 
@@ -85,7 +85,7 @@ class State
       # Skip next command
       when '#' then @move_pc()
       # Enter read char mode
-      when '"' then @read_chars = not @read_chars
+      when '"' then @stringmode = not @stringmode
       # I/O
       when ',' then @output_char @pop()
       when '.' then @output_int @pop()
