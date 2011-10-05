@@ -179,6 +179,11 @@ class State
     if DEBUG is off then print String.fromCharCode(c)
     @output += String.fromCharCode(c)
 
+  output_int: (c) ->
+    if DEBUG is off then print c
+    @output += c
+
+
   move_pc: ->
     @pc.x += @delta.x
     @pc.y += @delta.y
