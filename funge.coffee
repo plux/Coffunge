@@ -100,6 +100,9 @@ class State
       when '%' then @mod_op()
       # Logical operators
       when '!' then @push (not @pop)
+      when '`' then @gt_op()
+      when '_' then @horizontal_if()
+      when '|' then @vertical_if()
       # Stack operators
       when '$' then @pop()
       when ':' then @duplicate_op()
@@ -141,6 +144,26 @@ class State
     a = @pop()
     b = @pop()
     @push (b % a)
+
+  gt_op: () ->
+    a = @pop()
+    b = @pop()
+    if b > a
+      @push 1
+    else
+      @push 0
+
+  horizontal_if: () ->
+    if @pop() not 0
+      @delta = x: -1, y: 0
+    else
+      @delta = x: 1, y: 0
+
+  vertical_if: () ->
+    if @pop() not 0
+      @delta = x: 0, y: -1
+    else
+      @delta = x: 0, y: 1
 
   duplicate_op: () ->
     x = @pop()
