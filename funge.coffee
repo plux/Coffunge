@@ -63,9 +63,8 @@ class State
   get_instruction: -> @area[@pc.y][@pc.x]
 
   tick: ->
-    ret = @execute_instruction(@get_instruction())
+    @execute_instruction(@get_instruction())
     @move_pc()
-    ret
 
   execute_instruction: (instruction) ->
     # Push characters to the stack when in read chars mode
