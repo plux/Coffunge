@@ -108,6 +108,8 @@ class State
       when '\\' then @swap_op()
       # Get
       when 'g' then @get_op()
+      # Put
+      when 'p' then @put_op()
       # Noop, Chuck Testa!
       when ' ' then
       # Quit
@@ -181,6 +183,13 @@ class State
     @push @area[y][x]
     if DEBUG is on
       log "get(x: #{x}, y: #{y}) '#{@area[y][x]}'"
+
+  put_op: () ->
+    y   = @pop()
+    x   = @pop()
+    val = @pop()
+    @area[y][x] = val
+
   push: (x) -> @stack.unshift x
 
   pop: ->
