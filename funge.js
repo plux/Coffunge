@@ -377,7 +377,7 @@ print_line = function(line) {
 print = function(s) {
   switch (OUTPUT) {
     case 'console':
-      return console.write(s);
+      return console.log(s);
     case 'alert':
       return alert(s);
     case 'sys':
@@ -412,7 +412,6 @@ load = function() {
 
 run_code = function() {
   var output;
-  puts("Running program");
   output = run($("textarea#code").val());
   return $("textarea#output").val(output);
 };
