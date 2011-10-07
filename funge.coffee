@@ -5,9 +5,8 @@
 #
 # Author: Håkan Nilsson
 #
-sys = require 'sys'
 
-DEBUG    = on
+DEBUG    = off
 OUTPUT   = 'console'
 WIDTH    = 80
 HEIGHT   = 25
@@ -19,6 +18,7 @@ run = (code) ->
     if DEBUG then state.print()
     state.tick()
   log 'Finished running program'
+  state.output
 
 class State
   constructor: (@code) ->
@@ -236,13 +236,20 @@ print_line = (line) ->
   puts "|#{line}|"
 
 print = (s) ->
-  if OUTPUT is 'console' then sys.print s
+  switch OUTPUT
+    when 'console' then console.write s
+    when 'alert'   then alert s
+    when 'sys'     then sys.print s
 
 puts = (s) ->
-  if OUTPUT is 'console' then sys.puts s
+  switch OUTPUT
+    when 'console' then console.log s
+    when 'alert'   then alert s
+    when 'sys'     then sys.puts s
 
 log = (s) ->
-  if DEBUG then sys.puts 'LOG: ' + s
+  if DEBUG
+    puts 'LOG: ' + s
 
 hello_prog = '''
 <              v
@@ -253,4 +260,17 @@ v,,,,,,"World!"<
 '''
 test = () -> run(hello_prog)
 
-test()
+load = ->
+  $("textarea#code").val(hello_prog)
+
+run_code = () ->
+  puts "Running program"
+  output = run($("textarea#code").val())
+  $("textarea#output").val(output)
+
+if typeof window is 'undefined'
+  sys = require 'sys'
+  test()
+else
+  window.addEventListener('load', load, false)
+
