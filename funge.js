@@ -1,8 +1,8 @@
-var DEBUG, HEIGHT, OUTPUT, State, WIDTH, hello_prog, load, log, print, print_dashes, print_line, puts, run, run_code, sys, test;
+var DEBUG, HEIGHT, OUTPUT, State, WIDTH, error, hello_prog, load, log, print, print_dashes, print_line, puts, run, run_code, sys, test;
 
 DEBUG = false;
 
-OUTPUT = 'console';
+OUTPUT = 'alert';
 
 WIDTH = 80;
 
@@ -13,7 +13,7 @@ run = function(code) {
   log('Running program');
   state = new State(code);
   while (state.running) {
-    if (DEBUG) state.print();
+    if (OUTPUT === 'sys') state.print();
     state.tick();
   }
   log('Finished running program');
@@ -183,7 +183,7 @@ State = (function() {
       case '@':
         return this.running = false;
       default:
-        log(("Syntax error! Unknown instruction: '" + instruction + "' at ") + ("(x: " + this.pc.x + ", y: " + this.pc.y + ")"));
+        error(("Syntax error! Unknown instruction: '" + instruction + "' at ") + ("(x: " + this.pc.x + ", y: " + this.pc.y + ")"));
         return this.running = false;
     }
   };
@@ -288,9 +288,7 @@ State = (function() {
     y = this.pop();
     x = this.pop();
     this.push(this.area[y][x]);
-    if (DEBUG === true) {
-      return log("get(x: " + x + ", y: " + y + ") '" + this.area[y][x] + "'");
-    }
+    return log("get(x: " + x + ", y: " + y + ") '" + this.area[y][x] + "'");
   };
 
   State.prototype.put_op = function() {
@@ -379,7 +377,7 @@ print = function(s) {
     case 'console':
       return console.log(s);
     case 'alert':
-      return alert(s);
+      break;
     case 'sys':
       return sys.print(s);
   }
@@ -394,6 +392,10 @@ puts = function(s) {
     case 'sys':
       return sys.puts(s);
   }
+};
+
+error = function(s) {
+  return puts('ERROR: ' + s);
 };
 
 log = function(s) {
