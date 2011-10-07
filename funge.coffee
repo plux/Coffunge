@@ -222,7 +222,7 @@ class State
     @pc.x += @delta.x
     @pc.y += @delta.y
     if      @pc.x < 0      then @pc.x = WIDTH
-    else if @pc.x > HEIGHT then @pc.x = 0
+    else if @pc.x > WIDTH  then @pc.x = 0
     if      @pc.y < 0      then @pc.y = HEIGHT
     else if @pc.y > HEIGHT then @pc.y = 0
 
