@@ -237,7 +237,7 @@ print_line = (line) ->
 
 print = (s) ->
   switch OUTPUT
-    when 'console' then console.write s
+    when 'console' then console.log s
     when 'alert'   then alert s
     when 'sys'     then sys.print s
 
@@ -264,7 +264,6 @@ load = ->
   $("textarea#code").val(hello_prog)
 
 run_code = () ->
-  puts "Running program"
   output = run($("textarea#code").val())
   $("textarea#output").val(output)
 
