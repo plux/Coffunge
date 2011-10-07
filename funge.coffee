@@ -7,7 +7,7 @@
 #
 
 DEBUG    = off
-OUTPUT   = 'console'
+OUTPUT   = 'alert'
 WIDTH    = 80
 HEIGHT   = 25
 
@@ -15,7 +15,7 @@ run = (code) ->
   log 'Running program'
   state = new State code
   while state.running
-    if DEBUG then state.print()
+    if OUTPUT is 'sys' then state.print()
     state.tick()
   log 'Finished running program'
   state.output
@@ -115,7 +115,7 @@ class State
       # Quit
       when '@' then @running = false
       else
-        log "Syntax error! Unknown instruction: '#{instruction}' at " +
+        error "Syntax error! Unknown instruction: '#{instruction}' at " +
             "(x: #{@pc.x}, y: #{@pc.y})"
         @running = false
 
@@ -181,8 +181,7 @@ class State
     y = @pop()
     x = @pop()
     @push @area[y][x]
-    if DEBUG is on
-      log "get(x: #{x}, y: #{y}) '#{@area[y][x]}'"
+    log "get(x: #{x}, y: #{y}) '#{@area[y][x]}'"
 
   put_op: () ->
     y   = @pop()
@@ -238,7 +237,7 @@ print_line = (line) ->
 print = (s) ->
   switch OUTPUT
     when 'console' then console.log s
-    when 'alert'   then alert s
+    when 'alert'   then
     when 'sys'     then sys.print s
 
 puts = (s) ->
@@ -246,6 +245,9 @@ puts = (s) ->
     when 'console' then console.log s
     when 'alert'   then alert s
     when 'sys'     then sys.puts s
+
+error = (s) ->
+  puts 'ERROR: ' + s
 
 log = (s) ->
   if DEBUG
