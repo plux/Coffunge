@@ -155,13 +155,13 @@ class State
       @push 0
 
   horizontal_if: () ->
-    if @pop() not 0
+    if @pop() isnt 0
       @delta = x: -1, y: 0
     else
       @delta = x: 1, y: 0
 
   vertical_if: () ->
-    if @pop() not 0
+    if @pop() isnt 0
       @delta = x: 0, y: -1
     else
       @delta = x: 0, y: 1
