@@ -13,7 +13,8 @@ HEIGHT   = 25
 
 run = (code) ->
   log 'Running program'
-  state = new State code
+  state = new State()
+  state.load(code)
   while state.running
     if OUTPUT is 'sys' then state.print()
     state.tick()
@@ -21,7 +22,7 @@ run = (code) ->
   state.output
 
 class State
-  constructor: (@code) ->
+  constructor: () ->
     @pc         = x: 0, y: 0
     @delta      = x: 1, y: 0
     @area       = (' ' for x in [0..WIDTH] for y in [0..HEIGHT])
@@ -29,12 +30,11 @@ class State
     @stringmode = false
     @running    = true
     @output     = ''
-    @load(@code)
 
   load: (code) ->
     x = 0
     y = 0
-    for c in @code
+    for c in code
       if c is '\n'
         x = 0
         y += 1
