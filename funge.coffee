@@ -98,7 +98,7 @@ class State
       when '/' then @div_op()
       when '%' then @mod_op()
       # Logical operators
-      when '!' then @push (not @pop)
+      when '!' then @not_op()
       when '`' then @gt_op()
       when '_' then @horizontal_if()
       when '|' then @vertical_if()
@@ -145,6 +145,12 @@ class State
     a = @pop()
     b = @pop()
     @push (b % a)
+
+  not_op: () ->
+    if @pop() is 0
+      @push 1
+    else
+      @push 0
 
   gt_op: () ->
     a = @pop()
