@@ -173,9 +173,9 @@ class State
       @delta = x: 0, y: 1
 
   duplicate_op: () ->
-    x = @pop()
-    @push x
-    @push x
+    val = @pop()
+    @push val
+    @push val
 
   swap_op: () ->
     a = @pop()
