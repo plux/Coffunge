@@ -273,6 +273,18 @@ v  ,,,,,"Hello"<
 v,,,,,,"World!"<
 >25*,@
 '''
+
+fact_prog = '''
+0&>:1-:v v *_$.@
+  ^    _$>\:^
+'''
+
+quine_prog = "01->1# +# :# 0# g# ,# :# 5# 8# *# 4# +# -# _@"
+
+
+hello2_prog = '"!dlroW ,olleH">:#,_@'
+hello3_prog = '<@_ #!,#:<"Hello, World!"'
+
 test = () -> run(hello_prog)
 
 load = ->
