@@ -1,0 +1,21 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: 10pt Courier New, Courier;
+
+}
+body { 
+    background: #c1c1c1;
+}
+
+.tab {
+    border: 0;
+    background: #ffffff;
+    width: 1em;
+    text-align: center;
+}
+
+.tab:focus {
+    background: #f0f0f03;
+}
