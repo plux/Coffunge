@@ -15,7 +15,7 @@ print '''
 for y in range(0,25):
     print '      <tr>'
     for x in range(0,80):
-        print '        <td><input type="text" class="tab" id="%d,%d" maxlength="1" /></td>' % (x, y)
+        print '        <td><input type="text" class="tab" id="%dx%d" maxlength="1" /></td>' % (x, y)
     print '      </tr>'
 
 
