@@ -15,6 +15,7 @@ run = (code) ->
   log 'Running program'
   state = new State()
   state.load(code)
+  state.print_html()
   while state.running
     if OUTPUT is 'sys' then state.print()
     state.tick()
