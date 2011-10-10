@@ -161,16 +161,16 @@ class State
       @push 0
 
   horizontal_if: () ->
-    if @pop() isnt 0
-      @delta = x: -1, y: 0
-    else
+    if @pop() is 0
       @delta = x: 1, y: 0
+    else
+      @delta = x: -1, y: 0
 
   vertical_if: () ->
-    if @pop() isnt 0
-      @delta = x: 0, y: -1
-    else
+    if @pop() is 0
       @delta = x: 0, y: 1
+    else
+      @delta = x: 0, y: -1
 
   duplicate_op: () ->
     val = @pop()
