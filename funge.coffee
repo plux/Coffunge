@@ -60,6 +60,12 @@ class State
     @print_output()
     print_dashes()
 
+  print_html: ->
+    log "printing html"
+    for y in [0..HEIGHT]
+      for x in [0..WIDTH]
+        $("input##{x}x#{y}").attr('value', @area[y][x])
+
   get_instruction: -> @area[@pc.y][@pc.x]
 
   tick: ->
