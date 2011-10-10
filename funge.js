@@ -1,8 +1,8 @@
-var DEBUG, HEIGHT, OUTPUT, State, WIDTH, error, hello_prog, load, log, print, print_dashes, print_line, puts, run, run_code, sys, test;
+var DEBUG, HEIGHT, OUTPUT, State, WIDTH, error, fact_prog, hello2_prog, hello3_prog, hello_prog, load, log, print, print_dashes, print_line, puts, quine_prog, run, run_code, sys, test;
 
-DEBUG = false;
+DEBUG = true;
 
-OUTPUT = 'alert';
+OUTPUT = 'console';
 
 WIDTH = 80;
 
@@ -11,7 +11,9 @@ HEIGHT = 25;
 run = function(code) {
   var state;
   log('Running program');
-  state = new State(code);
+  state = new State();
+  state.load(code);
+  state.print_html();
   while (state.running) {
     if (OUTPUT === 'sys') state.print();
     state.tick();
@@ -22,9 +24,8 @@ run = function(code) {
 
 State = (function() {
 
-  function State(code) {
+  function State() {
     var x, y;
-    this.code = code;
     this.pc = {
       x: 0,
       y: 0
@@ -52,17 +53,15 @@ State = (function() {
     this.stringmode = false;
     this.running = true;
     this.output = '';
-    this.load(this.code);
   }
 
   State.prototype.load = function(code) {
-    var c, x, y, _i, _len, _ref, _results;
+    var c, x, y, _i, _len, _results;
     x = 0;
     y = 0;
-    _ref = this.code;
     _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      c = _ref[_i];
+    for (_i = 0, _len = code.length; _i < _len; _i++) {
+      c = code[_i];
       if (c === '\n') {
         x = 0;
         _results.push(y += 1);
@@ -99,6 +98,23 @@ State = (function() {
     print_line(" Output:");
     this.print_output();
     return print_dashes();
+  };
+
+  State.prototype.print_html = function() {
+    var x, y, _results;
+    log("printing html");
+    _results = [];
+    for (y = 0; 0 <= HEIGHT ? y <= HEIGHT : y >= HEIGHT; 0 <= HEIGHT ? y++ : y--) {
+      _results.push((function() {
+        var _results2;
+        _results2 = [];
+        for (x = 0; 0 <= WIDTH ? x <= WIDTH : x >= WIDTH; 0 <= WIDTH ? x++ : x--) {
+          _results2.push($("input#" + x + "x" + y).attr('value', this.area[y][x]));
+        }
+        return _results2;
+      }).call(this));
+    }
+    return _results;
   };
 
   State.prototype.get_instruction = function() {
@@ -161,7 +177,7 @@ State = (function() {
       case '%':
         return this.mod_op();
       case '!':
-        return this.push(!this.pop);
+        return this.not_op();
       case '`':
         return this.gt_op();
       case '_':
@@ -229,6 +245,14 @@ State = (function() {
     return this.push(b % a);
   };
 
+  State.prototype.not_op = function() {
+    if (this.pop() === 0) {
+      return this.push(1);
+    } else {
+      return this.push(0);
+    }
+  };
+
   State.prototype.gt_op = function() {
     var a, b;
     a = this.pop();
@@ -241,38 +265,38 @@ State = (function() {
   };
 
   State.prototype.horizontal_if = function() {
-    if (this.pop()(!0)) {
+    if (this.pop() === 0) {
       return this.delta = {
-        x: -1,
+        x: 1,
         y: 0
       };
     } else {
       return this.delta = {
-        x: 1,
+        x: -1,
         y: 0
       };
     }
   };
 
   State.prototype.vertical_if = function() {
-    if (this.pop()(!0)) {
+    if (this.pop() === 0) {
       return this.delta = {
         x: 0,
-        y: -1
+        y: 1
       };
     } else {
       return this.delta = {
         x: 0,
-        y: 1
+        y: -1
       };
     }
   };
 
   State.prototype.duplicate_op = function() {
-    var x;
-    x = this.pop();
-    this.push(x);
-    return this.push(x);
+    var val;
+    val = this.pop();
+    this.push(val);
+    return this.push(val);
   };
 
   State.prototype.swap_op = function() {
@@ -403,6 +427,14 @@ log = function(s) {
 };
 
 hello_prog = '<              v\nv  ,,,,,"Hello"<\n>48*,          v\nv,,,,,,"World!"<\n>25*,@';
+
+fact_prog = '0&>:1-:v v *_$.@\n  ^    _$>\:^';
+
+quine_prog = "01->1# +# :# 0# g# ,# :# 5# 8# *# 4# +# -# _@";
+
+hello2_prog = '"!dlroW ,olleH">:#,_@';
+
+hello3_prog = '<@_ #!,#:<"Hello, World!"';
 
 test = function() {
   return run(hello_prog);
