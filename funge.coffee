@@ -6,8 +6,8 @@
 # Author: Håkan Nilsson
 #
 
-DEBUG    = off
-OUTPUT   = 'alert'
+DEBUG    = on
+OUTPUT   = 'console'
 WIDTH    = 80
 HEIGHT   = 25
 
