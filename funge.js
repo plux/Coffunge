@@ -1,4 +1,4 @@
-var DEBUG, HEIGHT, OUTPUT, State, WIDTH, error, fact_prog, hello2_prog, hello3_prog, hello_prog, load, log, print, print_dashes, print_line, puts, quine_prog, run, run_code, sys, test;
+var DEBUG, HEIGHT, OUTPUT, STATE, State, WIDTH, error, fact_prog, hello2_prog, hello3_prog, hello_prog, load, load_code, log, print, print_dashes, print_line, puts, quine_prog, run, run_code, sys, test, tick_code;
 
 DEBUG = true;
 
@@ -7,6 +7,8 @@ OUTPUT = 'console';
 WIDTH = 80;
 
 HEIGHT = 25;
+
+STATE = false;
 
 run = function(code) {
   var state;
@@ -109,12 +111,20 @@ State = (function() {
         var _results2;
         _results2 = [];
         for (x = 0; 0 <= WIDTH ? x <= WIDTH : x >= WIDTH; 0 <= WIDTH ? x++ : x--) {
-          _results2.push($("input#" + x + "x" + y).attr('value', this.area[y][x]));
+          $("input#" + x + "x" + y).attr('value', this.area[y][x]);
+          _results2.push($("input#" + x + "x" + y).attr('class', 'cell'));
         }
         return _results2;
       }).call(this));
     }
     return _results;
+  };
+
+  State.prototype.update_html = function() {
+    $("input#" + this.pc.x + "x" + this.pc.y).attr('class', 'cell_hilight');
+    $("input#pcx").attr('value', this.pc.x);
+    $("input#pcy").attr('value', this.pc.y);
+    return $("input#instruction").attr('value', this.get_instruction());
   };
 
   State.prototype.get_instruction = function() {
@@ -445,9 +455,30 @@ load = function() {
 };
 
 run_code = function() {
-  var output;
-  output = run($("textarea#code").val());
-  return $("textarea#output").val(output);
+  var _results;
+  load_code();
+  _results = [];
+  while (STATE.running) {
+    _results.push(tick_code());
+  }
+  return _results;
+};
+
+load_code = function() {
+  var code;
+  code = $("textarea#code").val();
+  STATE = new State();
+  STATE.load(code);
+  STATE.print_html();
+  return $("textarea#output").val(STATE.output);
+};
+
+tick_code = function() {
+  if (STATE.running) {
+    STATE.update_html();
+    STATE.tick();
+    return $("textarea#output").val(STATE.output);
+  }
 };
 
 if (typeof window === 'undefined') {
