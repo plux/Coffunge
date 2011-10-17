@@ -11,6 +11,8 @@ OUTPUT   = 'console'
 WIDTH    = 80
 HEIGHT   = 25
 
+STATE    = off
+
 run = (code) ->
   log 'Running program'
   state = new State()
@@ -291,12 +293,25 @@ load = ->
   $("textarea#code").val(hello_prog)
 
 run_code = () ->
-  output = run($("textarea#code").val())
-  $("textarea#output").val(output)
+  load_code()
+  tick_code() while STATE.running
+
+load_code = () ->
+  code = $("textarea#code").val()
+  STATE = new State()
+  STATE.load(code)
+  STATE.print_html()
+  $("textarea#output").val(STATE.output)
+
+tick_code = () ->
+  if STATE.running
+    STATE.update_html()
+    STATE.tick()
+    $("textarea#output").val(STATE.output)
+
 
 if typeof window is 'undefined'
   sys = require 'sys'
   test()
 else
   window.addEventListener('load', load, false)
-
