@@ -8,12 +8,12 @@
 
 DEBUG    = off
 OUTPUT   = 'alert'
-WIDTH    = 80
-HEIGHT   = 25
 
 run = (code) ->
   log 'Running program'
-  state = new State code
+  state = new State()
+  state.load(code)
+  state.print_html()
   while state.running
     if OUTPUT is 'sys' then state.print()
     state.tick()
@@ -21,7 +21,7 @@ run = (code) ->
   state.output
 
 class State
-  constructor: (@code) ->
+  constructor: () ->
     @pc         = x: 0, y: 0
     @delta      = x: 1, y: 0
     @area       = (' ' for x in [0..WIDTH] for y in [0..HEIGHT])
@@ -29,12 +29,11 @@ class State
     @stringmode = false
     @running    = true
     @output     = ''
-    @load(@code)
 
   load: (code) ->
     x = 0
     y = 0
-    for c in @code
+    for c in code
       if c is '\n'
         x = 0
         y += 1
@@ -59,6 +58,19 @@ class State
     print_line " Output:"
     @print_output()
     print_dashes()
+
+  print_html: ->
+    log "printing html"
+    for y in [0..HEIGHT]
+      for x in [0..WIDTH]
+        $("input##{x}x#{y}").attr('value', @area[y][x])
+        $("input##{x}x#{y}").attr('class', 'cell')
+
+  update_html: ->
+    $("input##{@pc.x}x#{@pc.y}").attr('class', 'cell_hilight')
+    $("input#pcx").attr('value', @pc.x)
+    $("input#pcy").attr('value', @pc.y)
+    $("input#instruction").attr('value', @get_instruction())
 
   get_instruction: -> @area[@pc.y][@pc.x]
 
@@ -98,7 +110,7 @@ class State
       when '/' then @div_op()
       when '%' then @mod_op()
       # Logical operators
-      when '!' then @push (not @pop)
+      when '!' then @not_op()
       when '`' then @gt_op()
       when '_' then @horizontal_if()
       when '|' then @vertical_if()
@@ -146,6 +158,11 @@ class State
     b = @pop()
     @push (b % a)
 
+  not_op: () ->
+    if @pop() is 0
+      @push 1
+    else
+      @push 0
   gt_op: () ->
     a = @pop()
     b = @pop()
@@ -155,21 +172,21 @@ class State
       @push 0
 
   horizontal_if: () ->
-    if @pop() not 0
-      @delta = x: -1, y: 0
-    else
+    if @pop() is 0
       @delta = x: 1, y: 0
+    else
+      @delta = x: -1, y: 0
 
   vertical_if: () ->
-    if @pop() not 0
-      @delta = x: 0, y: -1
-    else
+    if @pop() is 0
       @delta = x: 0, y: 1
+    else
+      @delta = x: 0, y: -1
 
   duplicate_op: () ->
-    x = @pop()
-    @push x
-    @push x
+    val = @pop()
+    @push val
+    @push val
 
   swap_op: () ->
     a = @pop()
@@ -260,18 +277,41 @@ v  ,,,,,"Hello"<
 v,,,,,,"World!"<
 >25*,@
 '''
+
+fact_prog = '''
+0&>:1-:v v *_$.@
+  ^    _$>\:^
+'''
+
+quine_prog = "01->1# +# :# 0# g# ,# :# 5# 8# *# 4# +# -# _@"
+
+hello2_prog = '"!dlroW ,olleH">:#,_@'
+hello3_prog = '<@_ #!,#:<"Hello, World!"'
+
 test = () -> run(hello_prog)
 
 load = ->
   $("textarea#code").val(hello_prog)
 
 run_code = () ->
-  output = run($("textarea#code").val())
-  $("textarea#output").val(output)
+  load_code()
+  tick_code() while STATE.running
+
+load_code = () ->
+  code = $("textarea#code").val()
+  STATE = new State()
+  STATE.load(code)
+  STATE.print_html()
+  $("textarea#output").val(STATE.output)
+
+tick_code = () ->
+  if STATE.running
+    STATE.update_html()
+    STATE.tick()
+    $("textarea#output").val(STATE.output)
 
 if typeof window is 'undefined'
   sys = require 'sys'
   test()
 else
   window.addEventListener('load', load, false)
-
