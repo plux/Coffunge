@@ -68,6 +68,14 @@ class State
     for y in [0..HEIGHT]
       for x in [0..WIDTH]
         $("input##{x}x#{y}").attr('value', @area[y][x])
+        $("input##{x}x#{y}").attr('class', 'cell')
+
+  update_html: ->
+    $("input##{@pc.x}x#{@pc.y}").attr('class', 'cell_hilight')
+    $("input#pcx").attr('value', @pc.x)
+    $("input#pcy").attr('value', @pc.y)
+    $("input#instruction").attr('value', @get_instruction())
+
 
   get_instruction: -> @area[@pc.y][@pc.x]
 
