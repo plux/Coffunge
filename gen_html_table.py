@@ -9,15 +9,17 @@ print '''
 </head>
 <body>
   <form>
+  <div id="state">
+       PC: <input type="text" class="cell" id="pcx" maxlength="1" /> <input type="text" class="cell" id="pcy" maxlength="1" /> Instruction: <input type="text" class="cell" id="instruction" maxlength="1" /> 
+  </div>
   <div id="container">
     <table cellspacing="0" cellpadding="0">'''
 
 for y in range(0,25):
     print '      <tr>'
     for x in range(0,80):
-        print '        <td><input type="text" class="tab" id="%dx%d" maxlength="1" /></td>' % (x, y)
+        print '        <td><input type="text" class="cell" id="%dx%d" maxlength="1" /></td>' % (x, y)
     print '      </tr>'
-
 
 print '''
     </table>
@@ -27,8 +29,9 @@ print '''
     <textarea id="code" cols="80" rows="10">
     </textarea>
     <br />
-    <input type="button" value="Load Code" onclick="load_code()">  
+    <input type="button" value="Load Code" onclick="load_code()"> 
     <input type="button" value="Run program" onclick="run_code()">
+    <input type="button" value="Tick" onclick="tick_code()">
   </div>
   <div id="output_div">
     <h2>Output:</h2>
