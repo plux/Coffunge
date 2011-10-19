@@ -1,58 +1,35 @@
-var DEBUG, OUTPUT, State, error, fact_prog, hello2_prog, hello3_prog, hello_prog, load, load_code, log, print, print_dashes, print_line, puts, quine_prog, run, run_code, sys, test, tick_code;
+var DEBUG, HEIGHT, OUTPUT, STATE, State, WIDTH, error, fact_prog, hello2_prog, hello3_prog, hello_prog, load, load_code, log, print, print_dashes, print_line, puts, quine_prog, reset_code, run, run_code, sys, test, tick_code;
 
 DEBUG = false;
 
 OUTPUT = 'alert';
 
+WIDTH = 80;
+
+HEIGHT = 25;
+
+STATE = null;
+
 run = function(code) {
   var state;
-  log('Running program');
   state = new State();
   state.load(code);
-  state.print_html();
   while (state.running) {
-    if (OUTPUT === 'sys') state.print();
     state.tick();
   }
-  log('Finished running program');
   return state.output;
 };
 
 State = (function() {
 
   function State() {
-    var x, y;
-    this.pc = {
-      x: 0,
-      y: 0
-    };
-    this.delta = {
-      x: 1,
-      y: 0
-    };
-    this.area = (function() {
-      var _results;
-      _results = [];
-      for (y = 0; 0 <= HEIGHT ? y <= HEIGHT : y >= HEIGHT; 0 <= HEIGHT ? y++ : y--) {
-        _results.push((function() {
-          var _results2;
-          _results2 = [];
-          for (x = 0; 0 <= WIDTH ? x <= WIDTH : x >= WIDTH; 0 <= WIDTH ? x++ : x--) {
-            _results2.push(' ');
-          }
-          return _results2;
-        })());
-      }
-      return _results;
-    })();
-    this.stack = [];
-    this.stringmode = false;
-    this.running = true;
-    this.output = '';
+    this.code = '';
+    this.reset();
   }
 
   State.prototype.load = function(code) {
     var c, x, y, _i, _len, _results;
+    this.code = code;
     x = 0;
     y = 0;
     _results = [];
@@ -62,71 +39,88 @@ State = (function() {
         x = 0;
         _results.push(y += 1);
       } else {
-        this.area[y][x] = c;
+        this.set_instruction(x, y, c);
         _results.push(x += 1);
       }
     }
     return _results;
   };
 
-  State.prototype.print = function() {
-    var char, item, line, row, _i, _j, _k, _len, _len2, _len3, _ref, _ref2;
-    print_dashes();
-    _ref = this.area;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      row = _ref[_i];
-      line = '';
-      for (_j = 0, _len2 = row.length; _j < _len2; _j++) {
-        char = row[_j];
-        line += char;
+  State.prototype.reset = function() {
+    var x, y;
+    this.area = (function() {
+      var _results;
+      _results = [];
+      for (y = 0; 0 <= HEIGHT ? y <= HEIGHT : y >= HEIGHT; 0 <= HEIGHT ? y++ : y--) {
+        _results.push((function() {
+          var _results2;
+          _results2 = [];
+          for (x = 0; 0 <= WIDTH ? x <= WIDTH : x >= WIDTH; 0 <= WIDTH ? x++ : x--) {
+            _results2.push(null);
+          }
+          return _results2;
+        })());
       }
-      print_line(line);
-    }
-    print_dashes();
-    print_line((" PC: (" + this.pc.x + "," + this.pc.y + ")") + (" Delta: (" + this.delta.x + "," + this.delta.y + ")") + (" Stringmode: (" + this.stringmode + ")") + (" Instruction: (" + (this.get_instruction()) + ")"));
-    print_line("");
-    print_line(" Top of stack (total size: " + this.stack.length + "):");
-    _ref2 = this.stack.slice(0, 6);
-    for (_k = 0, _len3 = _ref2.length; _k < _len3; _k++) {
-      item = _ref2[_k];
-      print_line("   " + item);
-    }
-    print_line(" Output:");
-    this.print_output();
-    return print_dashes();
+      return _results;
+    })();
+    this.pc = {
+      x: 0,
+      y: 0
+    };
+    this.delta = {
+      x: 1,
+      y: 0
+    };
+    this.stack = [];
+    this.stringmode = false;
+    this.running = true;
+    this.output = '';
+    this.generate_table();
+    this.load(this.code);
+    $("input#pcx").attr('value', this.pc.x);
+    $("input#pcy").attr('value', this.pc.y);
+    return $("input#instruction").attr('value', this.get_instruction(this.pc.x, this.pc.y));
   };
 
-  State.prototype.print_html = function() {
-    var x, y, _results;
-    log("printing html");
-    _results = [];
+  State.prototype.generate_table = function() {
+    var input, table, td, tr, x, y;
+    table = $('<table>').attr('id', 'program').attr('cellspacing', 0);
     for (y = 0; 0 <= HEIGHT ? y <= HEIGHT : y >= HEIGHT; 0 <= HEIGHT ? y++ : y--) {
-      _results.push((function() {
-        var _results2;
-        _results2 = [];
-        for (x = 0; 0 <= WIDTH ? x <= WIDTH : x >= WIDTH; 0 <= WIDTH ? x++ : x--) {
-          $("input#" + x + "x" + y).attr('value', this.area[y][x]);
-          _results2.push($("input#" + x + "x" + y).attr('class', 'cell'));
-        }
-        return _results2;
-      }).call(this));
+      tr = $('<tr>');
+      for (x = 0; 0 <= WIDTH ? x <= WIDTH : x >= WIDTH; 0 <= WIDTH ? x++ : x--) {
+        input = $('<input>');
+        input.attr('id', "" + x + "x" + y);
+        input.attr('value', ' ');
+        input.attr('class', 'cell');
+        input.attr('type', 'text');
+        input.attr('maxlength', '1');
+        this.area[y][x] = input;
+        td = $('<td>').append(input);
+        tr.append(td);
+      }
+      table.append(tr);
     }
-    return _results;
+    $('div#container').empty();
+    return $('div#container').append(table);
   };
 
   State.prototype.update_html = function() {
     $("input#" + this.pc.x + "x" + this.pc.y).attr('class', 'cell_hilight');
     $("input#pcx").attr('value', this.pc.x);
     $("input#pcy").attr('value', this.pc.y);
-    return $("input#instruction").attr('value', this.get_instruction());
+    return $("input#instruction").attr('value', this.get_instruction(this.pc.x, this.pc.y));
   };
 
-  State.prototype.get_instruction = function() {
-    return this.area[this.pc.y][this.pc.x];
+  State.prototype.get_instruction = function(x, y) {
+    return this.area[y][x].attr('value');
+  };
+
+  State.prototype.set_instruction = function(x, y, value) {
+    return this.area[y][x].attr('value', value);
   };
 
   State.prototype.tick = function() {
-    this.execute_instruction(this.get_instruction());
+    this.execute_instruction(this.get_instruction(this.pc.x, this.pc.y));
     return this.move_pc();
   };
 
@@ -315,8 +309,7 @@ State = (function() {
     var x, y;
     y = this.pop();
     x = this.pop();
-    this.push(this.area[y][x]);
-    return log("get(x: " + x + ", y: " + y + ") '" + this.area[y][x] + "'");
+    return this.push(this.get_instruction(x, y));
   };
 
   State.prototype.put_op = function() {
@@ -324,7 +317,7 @@ State = (function() {
     y = this.pop();
     x = this.pop();
     val = this.pop();
-    return this.area[y][x] = val;
+    return this.set_instruction(x, y, val);
   };
 
   State.prototype.push = function(x) {
@@ -337,22 +330,6 @@ State = (function() {
     } else {
       return 0;
     }
-  };
-
-  State.prototype.print_output = function() {
-    var c, line, _i, _len, _ref;
-    line = '';
-    _ref = this.output;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      c = _ref[_i];
-      if (c === '\n') {
-        print_line('   ' + line);
-        line = '';
-      } else {
-        line += c;
-      }
-    }
-    if (line.length !== 0) return print_line('   ' + line);
   };
 
   State.prototype.output_char = function(c) {
@@ -445,12 +422,11 @@ test = function() {
 };
 
 load = function() {
-  return $("textarea#code").val(hello_prog);
+  return load_code(hello_prog);
 };
 
 run_code = function() {
   var _results;
-  load_code();
   _results = [];
   while (STATE.running) {
     _results.push(tick_code());
@@ -458,12 +434,13 @@ run_code = function() {
   return _results;
 };
 
-load_code = function() {
-  var STATE, code;
-  code = $("textarea#code").val();
+load_code = function(code) {
   STATE = new State();
-  STATE.load(code);
-  STATE.print_html();
+  return STATE.load(code);
+};
+
+reset_code = function(code) {
+  STATE.reset();
   return $("textarea#output").val(STATE.output);
 };
 
@@ -477,7 +454,7 @@ tick_code = function() {
 
 if (typeof window === 'undefined') {
   sys = require('sys');
-  test();
+  puts(test());
 } else {
   window.addEventListener('load', load, false);
 }
