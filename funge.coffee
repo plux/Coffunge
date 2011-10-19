@@ -14,27 +14,18 @@ HEIGHT   = 25
 STATE    = off
 
 run = (code) ->
-  log 'Running program'
   state = new State()
   state.load(code)
-  state.print_html()
   while state.running
-    if OUTPUT is 'sys' then state.print()
     state.tick()
-  log 'Finished running program'
   state.output
 
 class State
   constructor: () ->
-    @pc         = x: 0, y: 0
-    @delta      = x: 1, y: 0
-    @area       = (' ' for x in [0..WIDTH] for y in [0..HEIGHT])
-    @stack      = []
-    @stringmode = false
-    @running    = true
-    @output     = ''
+    @code       = ''
+    @reset()
 
-  load: (code) ->
+  load: (@code) ->
     x = 0
     y = 0
     for c in code
@@ -42,45 +33,53 @@ class State
         x = 0
         y += 1
       else
-        @area[y][x] = c
+        @set_instruction(x, y, c)
         x += 1
 
-  print: ->
-    print_dashes()
-    for row in @area
-      line = ''
-      line += char for char in row
-      print_line line
-    print_dashes()
-    print_line " PC: (#{@pc.x},#{@pc.y})" +
-               " Delta: (#{@delta.x},#{@delta.y})" +
-               " Stringmode: (#{@stringmode})" +
-               " Instruction: (#{@get_instruction()})"
-    print_line ""
-    print_line " Top of stack (total size: #{@stack.length}):"
-    print_line "   #{item}" for item in @stack[0..5]
-    print_line " Output:"
-    @print_output()
-    print_dashes()
+  reset: ->
+    @area       = (null for x in [0..WIDTH] for y in [0..HEIGHT])
+    @pc         = x: 0, y: 0
+    @delta      = x: 1, y: 0
+    @stack      = []
+    @stringmode = false
+    @running    = true
+    @output     = ''
+    @generate_table()
+    @load(@code)
+    $("input#pcx").attr('value', @pc.x)
+    $("input#pcy").attr('value', @pc.y)
+    $("input#instruction").attr('value', @get_instruction(@pc.x, @pc.y))
 
-  print_html: ->
-    log "printing html"
+  generate_table: ->
+    table = $('<table>').attr('id', 'program').attr('cellspacing', 0)
     for y in [0..HEIGHT]
+      tr = $('<tr>')
       for x in [0..WIDTH]
-        $("input##{x}x#{y}").attr('value', @area[y][x])
-        $("input##{x}x#{y}").attr('class', 'cell')
+        input = $('<input>')
+        input.attr('id', "#{x}x#{y}")
+        input.attr('value', ' ')
+        input.attr('class', 'cell')
+        input.attr('type', 'text')
+        input.attr('maxlength', '1')
+        @area[y][x] = input
+        td = $('<td>').append(input)
+        tr.append(td)
+      table.append(tr)
+    $('div#container').empty()
+    $('div#container').append(table)
 
   update_html: ->
     $("input##{@pc.x}x#{@pc.y}").attr('class', 'cell_hilight')
     $("input#pcx").attr('value', @pc.x)
     $("input#pcy").attr('value', @pc.y)
-    $("input#instruction").attr('value', @get_instruction())
+    $("input#instruction").attr('value', @get_instruction(@pc.x, @pc.y))
 
+  get_instruction: (x, y) -> @area[y][x].attr('value')
 
-  get_instruction: -> @area[@pc.y][@pc.x]
+  set_instruction: (x, y, value) -> @area[y][x].attr('value', value)
 
   tick: ->
-    @execute_instruction(@get_instruction())
+    @execute_instruction(@get_instruction(@pc.x, @pc.y))
     @move_pc()
 
   execute_instruction: (instruction) ->
@@ -203,14 +202,13 @@ class State
   get_op: () ->
     y = @pop()
     x = @pop()
-    @push @area[y][x]
-    log "get(x: #{x}, y: #{y}) '#{@area[y][x]}'"
+    @push @get_instruction(x, y)
 
   put_op: () ->
     y   = @pop()
     x   = @pop()
     val = @pop()
-    @area[y][x] = val
+    @set_instruction(x, y, val)
 
   push: (x) -> @stack.unshift x
 
@@ -219,17 +217,6 @@ class State
       @stack.shift()
     else
       0
-
-  print_output: ->
-    line = ''
-    for c in @output
-      if c is '\n'
-        print_line '   ' + line
-        line = ''
-      else
-        line += c
-
-    if line.length isnt 0 then print_line '   ' + line
 
   output_char: (c) ->
     if DEBUG is off then print String.fromCharCode(c)
@@ -298,17 +285,17 @@ hello3_prog = '<@_ #!,#:<"Hello, World!"'
 test = () -> run(hello_prog)
 
 load = ->
-  $("textarea#code").val(hello_prog)
+  load_code(hello_prog)
 
 run_code = () ->
-  load_code()
   tick_code() while STATE.running
 
-load_code = () ->
-  code = $("textarea#code").val()
+load_code = (code) ->
   STATE = new State()
   STATE.load(code)
-  STATE.print_html()
+
+reset_code = (code) ->
+  STATE.reset()
   $("textarea#output").val(STATE.output)
 
 tick_code = () ->
@@ -317,9 +304,8 @@ tick_code = () ->
     STATE.tick()
     $("textarea#output").val(STATE.output)
 
-
 if typeof window is 'undefined'
   sys = require 'sys'
-  test()
+  puts test()
 else
   window.addEventListener('load', load, false)

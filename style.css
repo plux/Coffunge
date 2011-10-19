@@ -3,7 +3,6 @@
     padding: 0;
     border: 0;
     font: 10pt Andale Mono, Lucida Console, Monaco, Courier New, Courier, fixed, monospace;
-
 }
 body { 
     background: #c1c1c1;
@@ -15,7 +14,8 @@ body {
     width: 1em;
     text-align: center;    
 }
-#pcx {
+
+#pcx, #pcy {
     width: 2em;
 }
 
